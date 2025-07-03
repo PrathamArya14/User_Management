@@ -1,4 +1,3 @@
 fastapi
 uvicorn
 jinja2
-sqlite3  # NOTE: This is part of the Python stdlib, so no need to include
