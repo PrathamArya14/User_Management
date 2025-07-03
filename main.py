@@ -100,11 +100,6 @@ def main():
     #print(getall_loop)
 
 
-#if __name__ == "__main__":
-    #main()
-    # run_server()
-
-app = FastAPI()\
-@app.get("/")
-def root():
-    return {"message": "User Management System is running on Render"}
+if __name__ == "__main__":
+    # main()
+    run_server()
