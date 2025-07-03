@@ -52,8 +52,8 @@ class MyHandler(BaseHTTPRequestHandler):
         self.wfile.write(response_body.encode("utf-8"))
 
 def run_server():
-    server = HTTPServer(("localhost", 8001), MyHandler)
-    print("Server started at http://localhost:8001")
+    server = HTTPServer(("localhost", 443), MyHandler)
+    print("Server started at http://localhost:443")
     server.serve_forever()
 
 
