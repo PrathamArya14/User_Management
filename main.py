@@ -8,6 +8,7 @@ from const.init_db import init_db
 import random
 import string
 from server import run_server
+from fastapi import FastAPI
 
 def main():
     init_db()
@@ -101,4 +102,9 @@ def main():
 
 if __name__ == "__main__":
     #main()
-    run_server()
+    # run_server()
+
+app = FastAPI()
+@app.get("/")
+def root():
+    return {"message": "User Management System is running on Render"}
