@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Edit Permission</h2>
+<form method="POST" style="max-width: 400px;">
+    <div class="mb-3">
+        <label class="form-label">Name</label>
+        <input type="text" name="name" class="form-control" value="{{ permission['name'] }}">
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Description</label>
+        <input type="text" name="description" class="form-control" value="{{ permission['description'] }}">
+    </div>
+    <button class="btn btn-primary" type="submit">Update</button>
+    <a href="/permissions" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

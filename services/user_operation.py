@@ -51,6 +51,56 @@ class UserOperation:
             return None
         con.close()
 
+#     def update_user(user_id, name, age):
+#             db = get_connection()
+#             con = db['con']
+#             cursor = db['cursor']
+#             #conn = get_connection()
+#             #cursor = conn.cursor()
+#             cursor.execute(
+#                 "UPDATE user SET name = ?, age = ? WHERE user_id = ?",
+#                 (name, age, user_id)
+#             )
+#             con.commit()
+#             con.close()
+
+    def update_user(user_id, name=None, age=None):
+        db = get_connection()
+        con = db['con']
+        cursor = db['cursor']
+
+        fields = []
+        values = []
+
+        if name is not None:
+            fields.append("name = ?")
+            values.append(name)
+
+        if age is not None:
+            fields.append("age = ?")
+            values.append(age)
+
+        if not fields:
+            con.close()
+            return  # Nothing to update
+
+        query = f"UPDATE user SET {', '.join(fields)} WHERE user_id = ?"
+        values.append(user_id)
+
+        cursor.execute(query, tuple(values))
+        con.commit()
+        con.close()
+
+    def delete_user(user_id):
+            db = get_connection()
+            con = db['con']
+            cursor = db['cursor']
+            #conn = get_connection()
+            #cursor = conn.cursor()
+            cursor.execute("DELETE FROM user WHERE user_id = ?", (user_id,))
+            con.commit()
+            con.close()
+
     def validate_page_size(page_size):
         if page_size < 1:
             raise TypeError(f"page_size should be greater then 0")

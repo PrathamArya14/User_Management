@@ -50,3 +50,39 @@ class PermissionOperation:
         else:
             return None
         con.close()
+
+    def update_permission(permission_id, name=None, description=None):
+            db = get_connection()
+            con = db['con']
+            cursor = db['cursor']
+
+            fields = []
+            values = []
+
+            if name:
+                fields.append("name = ?")
+                values.append(name)
+
+            if description:
+                fields.append("description = ?")
+                values.append(description)
+
+            if not fields:
+                con.close()
+                return  # Nothing to update
+
+            query = f"UPDATE permission SET {', '.join(fields)} WHERE permission_id = ?"
+            values.append(permission_id)
+
+            cursor.execute(query, tuple(values))
+            con.commit()
+            con.close()
+
+    def delete_permission(permission_id):
+            db = get_connection()
+            con = db['con']
+            cursor = db['cursor']
+
+            cursor.execute("DELETE FROM permission WHERE permission_id = ?", (permission_id,))
+            con.commit()
+            con.close()

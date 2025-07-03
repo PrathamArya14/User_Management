@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+{% block content %}
+<!--<h2 class="mb-4">Permissions</h2>-->
+<!--<form method="GET" action="/manage-users" class="input-group mb-4">-->
+<!--  <span class="input-group-text"><i class="fas fa-search"></i></span>-->
+<!--  <input type="text" name="query" class="form-control" placeholder="Search by name..." value="{{ request.args.get('query', '') }}">-->
+<!--  <button class="btn btn-primary" type="submit">Search</button>-->
+<!--</form>-->
+
+<div class="row align-items-center mb-4">
+  <div class="col-md-6">
+    <h2 class="mb-0">Permissions</h2>
+  </div>
+  <div class="col-md-6 text-end">
+    <form method="GET" action="/permissions" class="d-flex">
+      <input type="text" name="query" class="form-control me-2" placeholder="Search by name..." value="{{ request.args.get('query', '') }}">
+      <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i></button>
+    </form>
+  </div>
+</div>
+<!-- Add Permission Button -->
+<div class="mb-3 text-end">
+  <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addPermissionModal">
+    <i class="fas fa-plus"></i> Add Permission
+  </button>
+</div>
+{% if request.args.get('deleted') == '1' %}
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+  🗑️ Permission deleted successfully!
+  <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+{% endif %}
+
+{% if request.args.get('success') == '1' %}
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+  ✅ Permission added successfully!
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% elif request.args.get('error') == '1' %}
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+  ❌ Failed to add permission. Name is required.
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endif %}
+
+<!--Page box-->
+<div class="mb-3 text-end">
+  <form method="GET" action="/permissions" class="d-inline">
+    <input type="hidden" name="query" value="{{ query }}">
+    <input type="hidden" name="page" value="{{ page }}">
+    <label class="me-2">Permissions per page:</label>
+    <select name="per_page" class="form-select d-inline w-auto" onchange="this.form.submit()">
+      {% for n in range(5, 26, 5) %}
+      <option value="{{ n }}" {% if per_page == n %}selected{% endif %}>{{ n }}</option>
+      {% endfor %}
+    </select>
+  </form>
+</div>
+
+{% set scroll_height = 'max-height: 280px; overflow-y: auto;' if per_page > 5 else '' %}
+<div class="table-responsive" style="{{ scroll_height }}">
+<table class="table table-striped ">
+  <thead class="table-dark">
+  <tr>
+    <th>ID</th>
+    <th>Name</th>
+    <th>Description</th>
+    <th>Action</th>
+  </tr>
+  </thead>
+  <!--  <tbody>-->
+  <!--    {% for p in permissions %}-->
+  <!--    <tr>-->
+  <!--      <td>{{ p['permission_id'] }}</td>-->
+  <!--      <td>{{ p['name'] }}</td>-->
+  <!--      <td>{{ p['description'] }}</td>-->
+
+  <!--      <td>-->
+  <!--        <a href="/edit-permission/{{ p['permission_id'] }}" class="btn btn-sm btn-outline-primary me-2">-->
+  <!--          <i class="fas fa-edit"></i>-->
+  <!--        </a>-->
+  <!--        <a href="/delete-permission/{{ p['permission_id'] }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this permission?')">-->
+  <!--          <i class="fas fa-trash-alt"></i>-->
+  <!--        </a>-->
+  <!--      </td>-->
+
+  <!--    </tr>-->
+  <!--    {% endfor %}-->
+  <!--  </tbody>-->
+
+  <tbody>
+  {% for perm in permissions %}
+  {% if request.args.get('edit_id') == perm['permission_id']|string %}
+  <!-- Editable row -->
+  <form method="POST" action="/update-permission/{{ perm['permission_id'] }}">
+    <input type="hidden" name="page" value="{{ page }}">
+    <input type="hidden" name="per_page" value="{{ per_page }}">
+    <input type="hidden" name="query" value="{{ query }}">
+
+    <tr>
+      <td>{{ perm['permission_id'] }}</td>
+      <td><input type="text" name="name" value="{{ perm['name'] }}" class="form-control" required></td>
+      <td><input type="text" name="description" value="{{ perm['description'] }}" class="form-control"></td>
+      <td>
+        <button class="btn btn-sm btn-success" type="submit">Save</button>
+<!--        <a href="/permissions" class="btn btn-sm btn-secondary">Cancel</a>-->
+        <a href="{{ url_for('list_permissions') }}?page={{ page }}&per_page={{ per_page }}&query={{ query }}" class="btn btn-sm btn-secondary">Cancel</a>
+
+      </td>
+    </tr>
+  </form>
+  {% else %}
+  <!-- Read-only row -->
+  <tr>
+    <td>{{ perm['permission_id'] }}</td>
+    <td>{{ perm['name'] }}</td>
+    <td>{{ perm['description'] }}</td>
+    <td>
+      <form method="GET" action="/permissions" class="d-inline">
+        <input type="hidden" name="edit_id" value="{{ perm['permission_id'] }}">
+        <input type="hidden" name="page" value="{{ page }}">
+        <input type="hidden" name="per_page" value="{{ per_page }}">
+        <input type="hidden" name="query" value="{{ query }}">
+        <button class="btn btn-sm btn-outline-primary me-2" type="submit">
+          <i class="fas fa-edit"></i>
+        </button>
+      </form>
+      <a href="{{ url_for('delete_permission', permission_id=perm['permission_id']) }}?page={{ page }}&per_page={{ per_page }}&query={{ query }}"
+         class="btn btn-sm btn-outline-danger"
+         onclick="return confirm('Are you sure you want to delete this permission?')">
+        <i class="fas fa-trash-alt"></i>
+      </a>
+
+      <!--      <a href="/delete-permission/{{ perm['permission_id'] }}" class="btn btn-sm btn-outline-danger"-->
+<!--         onclick="return confirm('Are you sure you want to delete this permission?')">-->
+<!--        <i class="fas fa-trash-alt"></i>-->
+<!--      </a>-->
+    </td>
+  </tr>
+  {% endif %}
+  {% endfor %}
+  </tbody>
+
+</table>
+</div>
+
+<!-- Add Permission Modal -->
+<div class="modal fade" id="addPermissionModal" tabindex="-1" aria-labelledby="addPermissionModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form method="POST" action="/add-permission" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addPermissionModalLabel">Add New Permission</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">Permission Name</label>
+          <input type="text" name="name" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Description</label>
+          <input type="text" name="description" class="form-control">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-success" type="submit">Add Permission</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<nav aria-label="Permission pagination">
+  <ul class="pagination justify-content-center mt-4">
+    {% if page > 1 %}
+    <li class="page-item">
+<!--      <a class="page-link" href="{{ url_for('list_permissions') }}?page={{ page - 1 }}{% if query %}&query={{ query }}{% endif %}">Previous</a>-->
+      <a class="page-link" href="{{ url_for('list_permissions') }}?page={{ page - 1 }}&per_page={{ per_page }}{% if query %}&query={{ query }}{% endif %}">Previous</a>
+
+    </li>
+    {% endif %}
+
+    {% for p in range(1, total_pages + 1) %}
+    <li class="page-item {% if p == page %}active{% endif %}">
+<!--      <a class="page-link" href="{{ url_for('list_permissions') }}?page={{ p }}{% if query %}&query={{ query }}{% endif %}">{{ p }}</a>-->
+      <a class="page-link" href="{{ url_for('list_permissions') }}?page={{ p }}&per_page={{ per_page }}{% if query %}&query={{ query }}{% endif %}">{{ p }}</a>
+
+    </li>
+    {% endfor %}
+
+    {% if page < total_pages %}
+    <li class="page-item">
+<!--      <a class="page-link" href="{{ url_for('list_permissions') }}?page={{ page + 1 }}{% if query %}&query={{ query }}{% endif %}">Next</a>-->
+      <a class="page-link" href="{{ url_for('list_permissions') }}?page={{ page + 1 }}&per_page={{ per_page }}{% if query %}&query={{ query }}{% endif %}">Next</a>
+
+    </li>
+    {% endif %}
+  </ul>
+</nav>
+
+
+{% endblock %}

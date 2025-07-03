@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Assign Permissions to {{ user.name }}</h2>
+        <a href="{{ url_for('list_users', page=page, per_page=per_page, query=query) }}" class="btn btn-secondary">← Back</a>
+    </div>
+
+    {% if request.args.get('success') == '3' %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        ✅ Permissions assigned successfully!
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endif %}
+
+    <form method="POST" action="{{ url_for('assign_permissions_post', username=user.name) }}">
+        <input type="hidden" name="page" value="{{ page }}">
+        <input type="hidden" name="per_page" value="{{ per_page }}">
+        <input type="hidden" name="query" value="{{ query }}">
+
+        <div class="mb-3">
+            <label class="form-label"><strong>Select Permissions:</strong></label>
+            <div class="row">
+                {% for perm in all_permissions %}
+                <div class="form-check col-md-4">
+                    <input class="form-check-input" type="checkbox" name="permissions" value="{{ perm.name }}"
+                           id="perm{{ perm.permission_id }}" {% if perm.name in user_permissions %}checked{% endif %}>
+                    <label class="form-check-label" for="perm{{ perm.permission_id }}">
+                        {{ perm.name }}
+                    </label>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="text-end">
+            <button type="submit" class="btn btn-success">Save</button>
+            <a href="{{ url_for('list_users', page=page, per_page=per_page, query=query) }}" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
