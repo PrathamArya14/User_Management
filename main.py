@@ -8,7 +8,7 @@ from const.init_db import init_db
 import random
 import string
 from server import run_server
-from fastapi import FastAPI
+# from fastapi import FastAPI
 
 def main():
     init_db()
